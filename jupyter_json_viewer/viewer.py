@@ -1,6 +1,7 @@
 from IPython.display import HTML, display
 from typing import Any, Optional
 import json
+import uuid
 
 def get_theme_colors(is_dark: bool) -> dict:
     """Returns color scheme based on dark/light mode preference."""
@@ -109,73 +110,87 @@ def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> s
     result.append('</div></div>')
     return '\n'.join(result)
 
-def generate_css(indent_size: int) -> str:
-    """Generates CSS styles for the JSON viewer with dynamic theme detection."""
+def generate_css(theme_id: str) -> str:
+    """Generates CSS styles for the JSON viewer with scoped variables."""
     return f"""
-    <style id="json-viewer-styles">
-    .json-viewer {{
+    <style id="json-viewer-styles-{theme_id}">
+    /* Basis-Styles für den Container */
+    #json-viewer-{theme_id} {{
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
         font-size: 10px;
-        background-color: var(--theme-background);
-        color: var(--theme-text);
+        background-color: var(--theme-{theme_id}-background);
+        color: var(--theme-{theme_id}-text);
         border-radius: 8px;
         padding: 1.5em;
         line-height: 1.6;
-        box-shadow: 0 2px 8px var(--theme-shadow);
+        box-shadow: 0 2px 8px var(--theme-{theme_id}-shadow);
     }}
-    .json-title {{
+    
+    /* Titel-Styles */
+    #json-viewer-{theme_id} .json-title {{
         font-size: 12px;
         font-weight: bold;
         margin-bottom: 15px;
-        color: var(--theme-text);
-        border-bottom: 2px solid var(--theme-line);
+        color: var(--theme-{theme_id}-text);
+        border-bottom: 2px solid var(--theme-{theme_id}-line);
         padding-bottom: 8px;
     }}
-    .json-string {{ color: var(--theme-string); word-break: break-word; }}
-    .json-number {{ color: var(--theme-number); }}
-    .json-boolean {{ color: var(--theme-boolean); }}
-    .json-null {{ color: var(--theme-null); }}
-    .json-key {{
-        color: var(--theme-key);
+    
+    /* Syntax-Highlighting */
+    #json-viewer-{theme_id} .json-string {{ color: var(--theme-{theme_id}-string); word-break: break-word; }}
+    #json-viewer-{theme_id} .json-number {{ color: var(--theme-{theme_id}-number); }}
+    #json-viewer-{theme_id} .json-boolean {{ color: var(--theme-{theme_id}-boolean); }}
+    #json-viewer-{theme_id} .json-null {{ color: var(--theme-{theme_id}-null); }}
+    #json-viewer-{theme_id} .json-key {{
+        color: var(--theme-{theme_id}-key);
         font-weight: 600;
         margin-right: 8px;
     }}
-    .json-bracket {{ color: var(--theme-text); opacity: 0.7; }}
-    .json-container {{ position: relative; padding-left: {indent_size}px; }}
-    .collapsible {{
+    
+    /* Container und Layout */
+    #json-viewer-{theme_id} .json-bracket {{ color: var(--theme-{theme_id}-text); opacity: 0.7; }}
+    #json-viewer-{theme_id} .json-container {{ position: relative; padding-left: 24px; }}
+    
+    /* Collapse/Expand Button */
+    #json-viewer-{theme_id} .collapsible {{
         cursor: pointer;
         padding: 2px 8px;
-        background-color: var(--theme-collapsible-bg);
+        background-color: var(--theme-{theme_id}-collapsible-bg);
         border-radius: 4px;
         display: inline-block;
         margin: 2px;
         transition: all 0.2s;
         border: 1px solid transparent;
     }}
-    .collapsible:hover {{
-        background-color: var(--theme-collapsible-hover);
-        border-color: var(--theme-collapsible-border);
+    
+    #json-viewer-{theme_id} .collapsible:hover {{
+        background-color: var(--theme-{theme_id}-collapsible-hover);
+        border-color: var(--theme-{theme_id}-collapsible-border);
     }}
-    .content {{
-        display: block;
-        position: relative;
-    }}
-    .collapsed {{ display: none; }}
-    .property {{
+    
+    /* Content und Property Styles */
+    #json-viewer-{theme_id} .content {{ display: block; position: relative; }}
+    #json-viewer-{theme_id} .collapsed {{ display: none; }}
+    
+    #json-viewer-{theme_id} .property {{
         display: flex;
         align-items: flex-start;
         padding: 2px 0;
         border-radius: 4px;
     }}
-    .property:hover {{
-        background-color: var(--theme-property-hover);
+    
+    #json-viewer-{theme_id} .property:hover {{
+        background-color: var(--theme-{theme_id}-property-hover);
     }}
-    .key-value-separator {{
+    
+    /* Zusätzliche Elemente */
+    #json-viewer-{theme_id} .key-value-separator {{
         margin: 0 8px;
-        color: var(--theme-null);
+        color: var(--theme-{theme_id}-null);
     }}
-    .depth-marker {{
-        color: var(--theme-null);
+    
+    #json-viewer-{theme_id} .depth-marker {{
+        color: var(--theme-{theme_id}-null);
         margin-right: 8px;
         font-size: 10px;
         opacity: 0.5;
@@ -194,99 +209,114 @@ def display_json(
     """
     Displays JSON data in Jupyter Notebooks with enhanced visual hierarchy and dynamic theme support.
     
-    This function creates an interactive visualization of JSON data that automatically adapts
-    to notebook theme changes.
-    
     Args:
         data: The JSON data to display (can be dict, list, or JSON-serializable object)
         title: Optional title to display above the JSON view
         max_depth: Maximum nesting depth to display before truncating
         collapsed: Whether the JSON view should be initially collapsed
         indent_size: Indentation size in pixels for nested elements
-        dark_mode: Initial dark mode state (will be updated dynamically)
+        dark_mode: Initial dark mode state
     """
     try:
-        # Generate the base CSS with CSS variables
-        styles = generate_css(indent_size)
+        # Generiere eine einzigartige ID für diese Viewer-Instanz
+        viewer_id = str(uuid.uuid4())
         
-        # Convert theme colors to JSON for JavaScript
+        # Generiere das CSS mit den Scope-spezifischen Variablen
+        styles = generate_css(viewer_id)
+        
+        # Konvertiere Theme-Farben zu JSON für JavaScript
         light_theme = json.dumps(get_theme_colors(False))
         dark_theme = json.dumps(get_theme_colors(True))
         
-        # Generate JavaScript for theme handling and collapse functionality
+        # JavaScript für Theme-Handling und Collapse-Funktionalität
         script = f"""
         <script>
-        const lightTheme = {light_theme};
-        const darkTheme = {dark_theme};
-        
-        function setThemeColors(isDark) {{
-            const theme = isDark ? darkTheme : lightTheme;
-            const root = document.documentElement;
+        (function() {{
+            const viewerId = "{viewer_id}";
+            const lightTheme = {light_theme};
+            const darkTheme = {dark_theme};
             
-            Object.entries(theme).forEach(([key, value]) => {{
-                root.style.setProperty(`--theme-${{key}}`, value);
-            }});
-        }}
-        
-        function detectTheme() {{
-            // Check for Jupyter's data-jp-theme attribute
-            const jupyter = document.querySelector('[data-jp-theme-name]');
-            const isDark = jupyter ? jupyter.getAttribute('data-jp-theme-name') === 'JupyterLab Dark' : false;
-            setThemeColors(isDark);
+            function setThemeColors(isDark) {{
+                const theme = isDark ? darkTheme : lightTheme;
+                const root = document.documentElement;
+                
+                Object.entries(theme).forEach(([key, value]) => {{
+                    root.style.setProperty(`--theme-${{viewerId}}-${{key}}`, value);
+                }});
+            }}
             
-            // Set up a mutation observer to watch for theme changes
-            const observer = new MutationObserver((mutations) => {{
-                mutations.forEach((mutation) => {{
-                    if (mutation.attributeName === 'data-jp-theme-name') {{
-                        const isDark = mutation.target.getAttribute('data-jp-theme-name') === 'JupyterLab Dark';
-                        setThemeColors(isDark);
+            // Setze initiales Theme basierend auf dark_mode Parameter
+            setThemeColors({str(dark_mode).lower()});
+            
+            function detectTheme() {{
+                const jupyter = document.querySelector('[data-jp-theme-name]');
+                if (jupyter) {{
+                    const observer = new MutationObserver((mutations) => {{
+                        mutations.forEach((mutation) => {{
+                            if (mutation.attributeName === 'data-jp-theme-name') {{
+                                const isDark = mutation.target.getAttribute('data-jp-theme-name') === 'JupyterLab Dark';
+                                setThemeColors(isDark);
+                            }}
+                        }});
+                    }});
+                    
+                    observer.observe(jupyter, {{ attributes: true }});
+                }}
+            }}
+            
+            function toggleCollapse(element) {{
+                const content = element.nextElementSibling;
+                content.classList.toggle('collapsed');
+                element.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+            }}
+            
+            function initializeCollapse() {{
+                const viewer = document.getElementById(`json-viewer-${{viewerId}}`);
+                const containers = viewer.querySelectorAll('.content');
+                const toggles = viewer.querySelectorAll('.collapsible');
+                
+                containers.forEach((content, index) => {{
+                    if ({str(collapsed).lower()}) {{
+                        content.classList.add('collapsed');
+                        toggles[index].textContent = '▶';
                     }}
                 }});
-            }});
-            
-            if (jupyter) {{
-                observer.observe(jupyter, {{ attributes: true }});
             }}
-        }}
-        
-        function toggleCollapse(element) {{
-            const content = element.nextElementSibling;
-            content.classList.toggle('collapsed');
-            element.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
-        }}
-
-        function initializeCollapse() {{
-            const containers = document.querySelectorAll('.json-viewer .content');
-            const toggles = document.querySelectorAll('.json-viewer .collapsible');
-            containers.forEach((content, index) => {{
-                if ({str(collapsed).lower()}) {{
-                    content.classList.add('collapsed');
-                    toggles[index].textContent = '▶';
-                }}
-            }});
-        }}
-        
-        // Initialize theme detection and collapse state
-        detectTheme();
-        initializeCollapse();
+            
+            // Initialisiere Theme-Detection und Collapse-Status
+            detectTheme();
+            
+            // Warte auf DOM-Laden, bevor Collapse initialisiert wird
+            if (document.readyState === 'loading') {{
+                document.addEventListener('DOMContentLoaded', initializeCollapse);
+            }} else {{
+                initializeCollapse();
+            }}
+        }})();
         </script>
         """
         
-        # Combine all components
+        # Kombiniere alle Komponenten
         html_content = [styles]
+        
+        # Füge den Container mit der eindeutigen ID hinzu
+        html_content.append(f'<div id="json-viewer-{viewer_id}">')
         
         if title:
             escaped_title = title.replace('<', '&lt;').replace('>', '&gt;')
             html_content.append(f'<div class="json-title">{escaped_title}</div>')
         
-        # Generate the JSON viewer content
+        # Generiere den JSON-Viewer-Inhalt
         json_content = format_value(data, max_depth=max_depth)
-        html_content.append(f'<div class="json-viewer">{json_content}</div>')
+        html_content.append(f'<div class="json-content">{json_content}</div>')
         
-        # Add the script at the end
+        # Schließe den Container
+        html_content.append('</div>')
+        
+        # Füge das Script am Ende hinzu
         html_content.append(script)
         
-        # Display the combined HTML
+        # Zeige das kombinierte HTML an
         display(HTML('\n'.join(html_content)))
         
     except Exception as e:
