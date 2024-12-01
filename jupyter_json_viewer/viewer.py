@@ -23,6 +23,16 @@ def get_theme_colors(is_dark: bool) -> dict:
     }
 
 
+def get_marker(index: int, length: int) -> str:
+    """Returns the marker for the current property based on its position."""
+    if index == 0:
+        return "\u2510"
+    elif index == length - 1:
+        return "\u2518"
+    else:
+        return "\u251c"
+
+
 def format_value(v: Any, depth: int = 0, path: str = '', max_depth: Optional[int] = None) -> str:
     """
     Formats a value into HTML with proper styling and structure.
@@ -64,7 +74,7 @@ def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str
     ]
 
     for i, (k, v) in enumerate(d.items()):
-        marker = "\u2510" if i == 0 else "\u2518" if i == len(d) - 1 else "\u251c"
+        marker = get_marker(i, len(d))
         current_path = f"{path}.{k}" if path else k
         
         result.append(
@@ -91,7 +101,7 @@ def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> s
     ]
 
     for i, item in enumerate(lst):
-        marker = "\u2510" if i == 0 else "\u2518" if i == len(lst) - 1 else "\u251c"
+        marker = get_marker(i, len(lst))
         current_path = f"{path}[{i}]"
         
         result.append(
@@ -202,7 +212,7 @@ def display_json(
         indent_size: Indentation size in pixels for nested elements
         dark_mode: Activates dark color scheme for better visibility in dark notebooks
     """
-    # Get theme colors and generate CSS
+    # Extract parameters for easier readability
     theme = get_theme_colors(dark_mode)
     styles = generate_css(theme, indent_size)
     
@@ -223,4 +233,4 @@ def display_json(
         html_content.append(f'<div class="json-title">{title}</div>')
     html_content.append(f'<div class="json-viewer">{format_value(data, max_depth=max_depth)}</div>')
     
-    display(HTML('\n'.join(html_content)));
+    display(HTML('\n'.join(html_content)))
