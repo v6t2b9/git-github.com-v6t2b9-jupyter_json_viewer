@@ -111,8 +111,8 @@ DARK MODE:
 ```ascii
 ╔════════════════════════════════════════════════╗
 ║ MIT LICENSE                                    ║
-║ Copyright (c) 2024                            ║
-║ Developed by [Name/Team]                      ║
+║ Copyright (c) 2024                             ║
+║ Developed by v6t2b9                            ║
 ╚════════════════════════════════════════════════╝
 ```
 

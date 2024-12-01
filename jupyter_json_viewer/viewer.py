@@ -223,4 +223,4 @@ def display_json(
         html_content.append(f'<div class="json-title">{title}</div>')
     html_content.append(f'<div class="json-viewer">{format_value(data, max_depth=max_depth)}</div>')
     
-    display(HTML('\n'.join(html_content)))
+    display(HTML('\n'.join(html_content)));
