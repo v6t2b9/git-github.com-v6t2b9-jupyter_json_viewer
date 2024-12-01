@@ -1,3 +1,5 @@
+# jupyter_json_viewer/tests/test_viewer.py
+
 import pytest
 from jupyter_json_viewer import display_json
 from IPython.display import HTML

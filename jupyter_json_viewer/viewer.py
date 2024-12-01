@@ -1,3 +1,5 @@
+# jupyter_json_viewer/viewer.py
+
 import json
 from IPython.display import HTML, display
 from typing import Any, Optional
