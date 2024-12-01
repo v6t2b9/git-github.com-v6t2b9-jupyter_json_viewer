@@ -64,7 +64,7 @@ def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str
     ]
 
     for i, (k, v) in enumerate(d.items()):
-        marker = "┌" if i == 0 else "└" if i == len(d) - 1 else "├"
+        marker = "\u2510" if i == 0 else "\u2518" if i == len(d) - 1 else "\u251c"
         current_path = f"{path}.{k}" if path else k
         
         result.append(
@@ -91,7 +91,7 @@ def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> s
     ]
 
     for i, item in enumerate(lst):
-        marker = "┌" if i == 0 else "└" if i == len(lst) - 1 else "├"
+        marker = "\u2510" if i == 0 else "\u2518" if i == len(lst) - 1 else "\u251c"
         current_path = f"{path}[{i}]"
         
         result.append(
