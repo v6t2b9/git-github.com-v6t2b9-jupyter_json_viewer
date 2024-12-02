@@ -73,8 +73,6 @@ AVAILABLE CONFIGURATION OPTIONS:
 ```ascii
 ROOT
 ├── viewer.py     // Main module containing display_json function
-├── demo.ipynb    // Examples and demonstrations
-└── README.md     // Documentation
 ```
 
 >_TECHNICAL SPECIFICATIONS
