@@ -108,9 +108,9 @@ DARK MODE:
 ------
 ```ascii
 ╔════════════════════════════════════════════════╗
-║ MIT LICENSE                                    ║
+║ GNU General Public License v3.0                ║
 ║ Copyright (c) 2024                             ║
-║ Developed by v6t2b9                            ║
+║ Developed by Johannes Kaindl                   ║
 ╚════════════════════════════════════════════════╝
 ```
 
