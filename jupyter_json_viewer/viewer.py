@@ -238,7 +238,7 @@ def display_json(
             
             function setThemeColors(isDark) {{
                 const theme = isDark ? darkTheme : lightTheme;
-                const root = document.documentElement;
+                const root = document.querySelector(`#json-viewer-${{viewerId}}`);
                 
                 Object.entries(theme).forEach(([key, value]) => {{
                     root.style.setProperty(`--theme-${{viewerId}}-${{key}}`, value);
@@ -247,22 +247,6 @@ def display_json(
             
             // Setze initiales Theme basierend auf dark_mode Parameter
             setThemeColors({str(dark_mode).lower()});
-            
-            function detectTheme() {{
-                const jupyter = document.querySelector('[data-jp-theme-name]');
-                if (jupyter) {{
-                    const observer = new MutationObserver((mutations) => {{
-                        mutations.forEach((mutation) => {{
-                            if (mutation.attributeName === 'data-jp-theme-name') {{
-                                const isDark = mutation.target.getAttribute('data-jp-theme-name') === 'JupyterLab Dark';
-                                setThemeColors(isDark);
-                            }}
-                        }});
-                    }});
-                    
-                    observer.observe(jupyter, {{ attributes: true }});
-                }}
-            }}
             
             function toggleCollapse(element) {{
                 const content = element.nextElementSibling;
@@ -283,15 +267,8 @@ def display_json(
                 }});
             }}
             
-            // Initialisiere Theme-Detection und Collapse-Status
-            detectTheme();
-            
-            // Warte auf DOM-Laden, bevor Collapse initialisiert wird
-            if (document.readyState === 'loading') {{
-                document.addEventListener('DOMContentLoaded', initializeCollapse);
-            }} else {{
-                initializeCollapse();
-            }}
+            // Warte, bis das DOM vollständig geladen ist, bevor die Collapse-Logik initialisiert wird
+            document.addEventListener('DOMContentLoaded', initializeCollapse);
         }})();
         </script>
         """
