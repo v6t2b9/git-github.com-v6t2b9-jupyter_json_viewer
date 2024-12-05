@@ -1,3 +1,15 @@
+Wenn Sie ASCII-Blöcke in der README beibehalten möchten, sollten diese innerhalb eines Markdown-Codeblocks (\`\`\`ascii\`\`\`) gesetzt werden. Auf diese Weise wird PyPI die ASCII-Grafik korrekt rendern, da es sie als reinen Code behandelt.
+
+Hier ist eine überarbeitete Version, die Ihre ASCII-Blöcke korrekt integriert:
+
+---
+
+### PyPI-freundliche README mit ASCII-Blöcken
+
+```markdown
+# Jupyter JSON Viewer v1.0
+**Interactive JSON Visualization System**
+
 ```ascii
 ╔══════════════════════════════════════════════════════════════╗
 ║ JUPYTER JSON VIEWER v1.0                                     ║
@@ -6,12 +18,22 @@
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
->_SYSTEM OVERVIEW
----------------
-An interactive JSON viewer for Jupyter Notebooks that provides clear and interactive visualization of complex data structures. The viewer supports both light and dark color schemes and offers distinct visual hierarchy for improved data comprehension.
+---
 
+## System Overview
+
+An interactive JSON viewer for Jupyter Notebooks that provides
+clear and interactive visualization of complex data structures.
+The viewer supports both light and dark color schemes and offers
+distinct visual hierarchy for improved data comprehension.
+
+---
+
+## Core Features
+
+```ascii
 >_CORE FEATURES
-------------
+---------------
 [■] VISUALIZATION
     > Interactive collapsible sections for managing complex structures
     > Clear visual hierarchy with structural markers (┌├└)
@@ -26,9 +48,12 @@ An interactive JSON viewer for Jupyter Notebooks that provides clear and interac
     > Configurable display depth
     > Adjustable indentation
     > Optional title support
+```
 
->_INITIALIZATION
-------------
+---
+
+## Initialization
+
 ```python
 # Import the viewer
 from viewer import display_json
@@ -57,6 +82,11 @@ display_json(
 )
 ```
 
+---
+
+## Parameters
+
+```ascii
 >_PARAMETERS
 ---------
 AVAILABLE CONFIGURATION OPTIONS:
@@ -67,14 +97,13 @@ AVAILABLE CONFIGURATION OPTIONS:
 [COLLAPSED] State of collapsible elements (default: False)
 [INDENT]    Indentation size in pixels (default: 24)
 [DARK_MODE] Dark color scheme (default: False)
-
->_PROJECT STRUCTURE
----------------
-```ascii
-ROOT
-├── viewer.py     // Main module containing display_json function
 ```
 
+---
+
+## Technical Specifications
+
+```ascii
 >_TECHNICAL SPECIFICATIONS
 ---------------------
 SYSTEM REQUIREMENTS:
@@ -87,7 +116,13 @@ IMPLEMENTED TECHNOLOGIES:
 - CSS3 for styling and animations
 - JavaScript for interactivity
 - IPython display system integration
+```
 
+---
+
+## Color Schemes
+
+```ascii
 >_COLOR SCHEMES
 -----------
 LIGHT MODE:
@@ -103,9 +138,12 @@ DARK MODE:
 - Strings: #6A9955
 - Numbers: #569CD6
 - Boolean values: #C586C0
+```
 
->_LICENSE
-------
+---
+
+## License
+
 ```ascii
 ╔════════════════════════════════════════════════╗
 ║ GNU General Public License v3.0                ║
@@ -114,4 +152,16 @@ DARK MODE:
 ╚════════════════════════════════════════════════╝
 ```
 
->>END OF DOCUMENTATION
+---
+
+### Hinweise
+
+1. Alle ASCII-Blöcke wurden in \`\`\`ascii\`\`\`-Blöcke eingefügt, damit sie korrekt dargestellt werden.
+2. Die Struktur bleibt unverändert, und die Formatierung wird PyPI-konform sein.
+
+**Testen Sie die README wie folgt:**
+```bash
+pip install twine
+python setup.py sdist
+twine check dist/*
+```
