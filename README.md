@@ -1,14 +1,5 @@
-Wenn Sie ASCII-Blöcke in der README beibehalten möchten, sollten diese innerhalb eines Markdown-Codeblocks (\`\`\`ascii\`\`\`) gesetzt werden. Auf diese Weise wird PyPI die ASCII-Grafik korrekt rendern, da es sie als reinen Code behandelt.
-
-Hier ist eine überarbeitete Version, die Ihre ASCII-Blöcke korrekt integriert:
-
----
-
-### PyPI-freundliche README mit ASCII-Blöcken
-
-```markdown
 # Jupyter JSON Viewer v1.0
-**Interactive JSON Visualization System**
+**An Interactive JSON Visualization System for Jupyter Notebooks**
 
 ```ascii
 ╔══════════════════════════════════════════════════════════════╗
@@ -18,53 +9,52 @@ Hier ist eine überarbeitete Version, die Ihre ASCII-Blöcke korrekt integriert:
 ╚══════════════════════════════════════════════════════════════╝
 ```
 
----
+## Overview
 
-## System Overview
+Jupyter JSON Viewer is a sophisticated visualization tool designed to make JSON data exploration in Jupyter Notebooks more intuitive and efficient. It transforms complex JSON structures into interactive, collapsible displays with intelligent visual hierarchy and customizable themes.
 
-An interactive JSON viewer for Jupyter Notebooks that provides
-clear and interactive visualization of complex data structures.
-The viewer supports both light and dark color schemes and offers
-distinct visual hierarchy for improved data comprehension.
-
----
-
-## Core Features
+## Key Features
 
 ```ascii
->_CORE FEATURES
----------------
-[■] VISUALIZATION
-    > Interactive collapsible sections for managing complex structures
-    > Clear visual hierarchy with structural markers (┌├└)
-    > Syntax highlighting for different data types
+>_CORE CAPABILITIES
+------------------
+[■] VISUAL HIERARCHY
+    > Tree-style markers (┐├┘) showing data relationships
+    > Color-coded data types for quick recognition
+    > Clear indentation for nested structures
+    > Collapsible sections for managing complexity
 
-[■] INTERFACE
-    > Light and dark mode support
-    > Monospace font optimization for readability
+[■] INTERACTIVE ELEMENTS
+    > Click-to-expand/collapse functionality
+    > Intuitive arrow indicators (▼/▶)
     > Responsive hover effects
+    > Smooth transitions
 
-[■] CUSTOMIZATION
-    > Configurable display depth
-    > Adjustable indentation
-    > Optional title support
+[■] THEME SUPPORT
+    > Professional light and dark modes
+    > Carefully chosen color palettes
+    > Optimized for readability
+    > Reduced eye strain for long sessions
 ```
 
----
+## Installation
 
-## Initialization
+```bash
+pip install jupyter-json-viewer
+```
+
+## Quick Start
 
 ```python
-# Import the viewer
-from viewer import display_json
+from jupyter_json_viewer import display_json
 
-# Sample data
+# Your JSON-compatible data
 data = {
     "name": "example",
-    "values": [1, 2, 3],
-    "options": {
-        "active": True,
-        "mode": "standard"
+    "details": {
+        "type": "demo",
+        "values": [1, 2, 3],
+        "active": True
     }
 }
 
@@ -74,94 +64,116 @@ display_json(data)
 # Advanced configuration
 display_json(
     data,
-    title="Data Structure",   # Optional title
-    dark_mode=True,          # Enables dark mode
-    collapsed=True,          # Starts collapsed
-    max_depth=3,            # Maximum display depth
-    indent_size=24          # Indentation in pixels
+    title="Data Structure",    # Optional heading
+    dark_mode=True,           # Enable dark theme
+    collapsed=True,           # Start collapsed
+    max_depth=3,             # Maximum nesting display
+    indent_size=24           # Spacing size in pixels
 )
 ```
 
----
-
-## Parameters
+## Configuration Options
 
 ```ascii
 >_PARAMETERS
----------
-AVAILABLE CONFIGURATION OPTIONS:
-
-[DATA]      The JSON-compatible data structure to visualize (required)
-[TITLE]     Optional heading above the visualization
-[MAX_DEPTH] Maximum nesting depth to display (optional)
-[COLLAPSED] State of collapsible elements (default: False)
-[INDENT]    Indentation size in pixels (default: 24)
-[DARK_MODE] Dark color scheme (default: False)
+-----------
+[DATA]       Any JSON-compatible Python object (required)
+[TITLE]      Optional string for display heading
+[MAX_DEPTH]  Integer limiting nesting visualization
+[COLLAPSED]  Boolean for initial collapse state
+[INDENT]     Integer for visual spacing (pixels)
+[DARK_MODE]  Boolean for theme selection
 ```
 
----
-
-## Technical Specifications
-
-```ascii
->_TECHNICAL SPECIFICATIONS
----------------------
-SYSTEM REQUIREMENTS:
-- Python 3.6 or higher
-- IPython 7.0.0 or higher
-- Jupyter Notebook/Lab
-
-IMPLEMENTED TECHNOLOGIES:
-- HTML5 for structural representation
-- CSS3 for styling and animations
-- JavaScript for interactivity
-- IPython display system integration
-```
-
----
-
-## Color Schemes
+## Theme Specifications
 
 ```ascii
 >_COLOR SCHEMES
------------
-LIGHT MODE:
-- Background: #f8f9fa
-- Text: #2c3e50
-- Strings: #28a745
-- Numbers: #0066cc
-- Boolean values: #e83e8c
-
-DARK MODE:
-- Background: #1e1e1e
-- Text: #d4d4d4
-- Strings: #6A9955
-- Numbers: #569CD6
-- Boolean values: #C586C0
+-------------
+LIGHT THEME                 DARK THEME
+Background: #f8f9fa         Background: #1e1e1e
+Text:       #2c3e50         Text:       #d4d4d4
+Strings:    #28a745         Strings:    #6A9955
+Numbers:    #0066cc         Numbers:    #569CD6
+Booleans:   #e83e8c         Booleans:   #C586C0
+Keys:       #2c3e50         Keys:       #4EC9B0
 ```
 
----
+## Visual Structure Guide
+
+The viewer creates a clear visual hierarchy:
+
+```ascii
+>_STRUCTURE
+---------
+┐ Root level elements
+├ Middle elements with siblings
+└ Last elements in their level
+  └ Nested structures
+    └ Further nesting
+```
+
+## Technical Requirements
+
+```ascii
+>_PREREQUISITES
+------------
+- Python 3.6+
+- IPython 7.0.0+
+- Jupyter Notebook/Lab
+```
+
+## Security Features
+
+The viewer implements several security measures:
+- HTML escaping for title text
+- UUID-based element isolation
+- Proper error handling and reporting
+- Type-safe data processing
+
+## Error Handling
+
+The viewer provides clear error messages for common issues:
+- Invalid JSON structures
+- Unsupported data types
+- Malformed input data
+- Display rendering problems
 
 ## License
 
 ```ascii
 ╔════════════════════════════════════════════════╗
 ║ GNU General Public License v3.0                ║
-║ Copyright (c) 2024                             ║
-║ Developed by Johannes Kaindl                   ║
+║ Copyright (c) 2024                            ║
+║ Developed by Johannes Kaindl                  ║
 ╚════════════════════════════════════════════════╝
 ```
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
+
+To set up the development environment:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/jupyter-json-viewer
+cd jupyter-json-viewer
+
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+```
+
+## Support
+
+For questions and support:
+1. Check the [issues page](https://github.com/yourusername/jupyter-json-viewer/issues)
+2. Review existing questions
+3. Create a new issue if needed
+
 ---
 
-### Hinweise
-
-1. Alle ASCII-Blöcke wurden in \`\`\`ascii\`\`\`-Blöcke eingefügt, damit sie korrekt dargestellt werden.
-2. Die Struktur bleibt unverändert, und die Formatierung wird PyPI-konform sein.
-
-**Testen Sie die README wie folgt:**
-```bash
-pip install twine
-python setup.py sdist
-twine check dist/*
-```
+The viewer works best with modern browsers and updated Jupyter environments. For optimal performance, keep your Python packages up to date.
