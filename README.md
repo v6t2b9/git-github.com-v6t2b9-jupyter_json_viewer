@@ -144,8 +144,8 @@ The viewer provides clear error messages for common issues:
 ```ascii
 ╔════════════════════════════════════════════════╗
 ║ GNU General Public License v3.0                ║
-║ Copyright (c) 2024                            ║
-║ Developed by Johannes Kaindl                  ║
+║ Copyright (c) 2024                             ║
+║ Developed by Johannes Kaindl                   ║
 ╚════════════════════════════════════════════════╝
 ```
 
@@ -157,7 +157,7 @@ To set up the development environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/jupyter-json-viewer
+git clone https://github.com/v6t2b9/jupyter-json-viewer
 cd jupyter-json-viewer
 
 # Install development dependencies
