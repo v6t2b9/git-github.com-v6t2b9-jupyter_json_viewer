@@ -208,27 +208,13 @@ def display_json(
 ) -> None:
     """
     Displays JSON data in Jupyter Notebooks with enhanced visual hierarchy and dynamic theme support.
-    
-    Args:
-        data: The JSON data to display (can be dict, list, or JSON-serializable object)
-        title: Optional title to display above the JSON view
-        max_depth: Maximum nesting depth to display before truncating
-        collapsed: Whether the JSON view should be initially collapsed
-        indent_size: Indentation size in pixels for nested elements
-        dark_mode: Initial dark mode state
     """
     try:
-        # Generiere eine einzigartige ID für diese Viewer-Instanz
         viewer_id = str(uuid.uuid4())
-        
-        # Generiere das CSS mit den Scope-spezifischen Variablen
-        styles = generate_css(viewer_id)
-        
-        # Konvertiere Theme-Farben zu JSON für JavaScript
         light_theme = json.dumps(get_theme_colors(False))
         dark_theme = json.dumps(get_theme_colors(True))
         
-        # JavaScript für Theme-Handling und Collapse-Funktionalität
+        # Updated JavaScript implementation that combines both collapse and theme functionality
         script = f"""
         <script>
         (function() {{
@@ -236,64 +222,112 @@ def display_json(
             const lightTheme = {light_theme};
             const darkTheme = {dark_theme};
             
+            // Theme handling function
             function setThemeColors(isDark) {{
                 const theme = isDark ? darkTheme : lightTheme;
                 const root = document.querySelector(`#json-viewer-${{viewerId}}`);
+                if (!root) return;
                 
                 Object.entries(theme).forEach(([key, value]) => {{
                     root.style.setProperty(`--theme-${{viewerId}}-${{key}}`, value);
                 }});
             }}
             
-            // Setze initiales Theme basierend auf dark_mode Parameter
+            // Set initial theme
             setThemeColors({str(dark_mode).lower()});
             
-            function toggleCollapse(element) {{
+            // Global collapse function for this instance
+            window[`toggleCollapse_${{viewerId}}`] = function(element) {{
                 const content = element.nextElementSibling;
-                content.classList.toggle('collapsed');
-                element.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
-            }}
+                if (content.style.display === "none") {{
+                    content.style.display = "block";
+                    element.textContent = "▼";
+                }} else {{
+                    content.style.display = "none";
+                    element.textContent = "▶";
+                }}
+            }};
             
+            // Initialize collapse states
             function initializeCollapse() {{
                 const viewer = document.getElementById(`json-viewer-${{viewerId}}`);
-                const containers = viewer.querySelectorAll('.content');
-                const toggles = viewer.querySelectorAll('.collapsible');
+                if (!viewer) return;
                 
-                containers.forEach((content, index) => {{
-                    if ({str(collapsed).lower()}) {{
-                        content.classList.add('collapsed');
-                        toggles[index].textContent = '▶';
-                    }}
-                }});
+                if ({str(collapsed).lower()}) {{
+                    const contents = viewer.querySelectorAll('.content');
+                    const toggles = viewer.querySelectorAll('.collapsible');
+                    contents.forEach(content => content.style.display = "none");
+                    toggles.forEach(toggle => toggle.textContent = "▶");
+                }}
             }}
             
-            // Warte, bis das DOM vollständig geladen ist, bevor die Collapse-Logik initialisiert wird
-            document.addEventListener('DOMContentLoaded', initializeCollapse);
+            // Execute initialization immediately
+            initializeCollapse();
         }})();
         </script>
         """
         
-        # Kombiniere alle Komponenten
-        html_content = [styles]
-        
-        # Füge den Container mit der eindeutigen ID hinzu
+        def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str:
+            if not d:
+                return '<span class="json-bracket">{}</span>'
+
+            result = [
+                f'<div class="collapsible" onclick="toggleCollapse_{viewer_id}(this)" style="display: inline-block;">▼</div>',
+                '<div class="content" style="display: block;"><div class="json-container">'
+            ]
+            
+            items = list(d.items())
+            for i, (k, v) in enumerate(items):
+                marker = get_marker(i, len(items))
+                current_path = f"{path}.{k}" if path else k
+                result.append(
+                    f'<div class="property">'
+                    f'<span class="depth-marker">{marker}</span>'
+                    f'<span class="json-key">"{k}"</span>'
+                    f'<span class="key-value-separator">:</span>'
+                    f'{format_value(v, depth + 1, current_path, max_depth)}'
+                    f'{"," if i < len(items) - 1 else ""}</div>'
+                )
+
+            result.append('</div></div>')
+            return '\n'.join(result)
+
+        def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> str:
+            if not lst:
+                return '<span class="json-bracket">[]</span>'
+
+            result = [
+                f'<div class="collapsible" onclick="toggleCollapse_{viewer_id}(this)" style="display: inline-block;">▼</div>',
+                '<div class="content" style="display: block;"><div class="json-container">'
+            ]
+
+            for i, item in enumerate(lst):
+                marker = get_marker(i, len(lst))
+                current_path = f"{path}[{i}]"
+                result.append(
+                    f'<div class="property">'
+                    f'<span class="depth-marker">{marker}</span>'
+                    f'{format_value(item, depth + 1, current_path, max_depth)}'
+                    f'{"," if i < len(lst) - 1 else ""}</div>'
+                )
+
+            result.append('</div></div>')
+            return '\n'.join(result)
+
+        # Combine all components
+        html_content = [generate_css(viewer_id)]
         html_content.append(f'<div id="json-viewer-{viewer_id}">')
         
         if title:
             escaped_title = title.replace('<', '&lt;').replace('>', '&gt;')
             html_content.append(f'<div class="json-title">{escaped_title}</div>')
         
-        # Generiere den JSON-Viewer-Inhalt
         json_content = format_value(data, max_depth=max_depth)
         html_content.append(f'<div class="json-content">{json_content}</div>')
         
-        # Schließe den Container
         html_content.append('</div>')
-        
-        # Füge das Script am Ende hinzu
         html_content.append(script)
         
-        # Zeige das kombinierte HTML an
         display(HTML('\n'.join(html_content)))
         
     except Exception as e:
