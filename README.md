@@ -11,7 +11,7 @@
 
 ## Overview
 
-Jupyter JSON Viewer is a sophisticated visualization tool designed to make JSON data exploration in Jupyter Notebooks more intuitive and efficient. It transforms complex JSON structures into interactive, collapsible displays with intelligent visual hierarchy and customizable themes.
+Jupyter JSON Viewer is a ligh-weight visualization tool designed to make JSON data exploration in Jupyter Notebooks more intuitive and efficient. It transforms complex JSON structures into interactive, collapsible displays with intelligent visual hierarchy and customizable themes.
 
 ## Key Features
 
