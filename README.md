@@ -1,4 +1,4 @@
-# Jupyter JSON Viewer v1.0
+# Jupyter JSON Viewer v1.4
 **An Interactive JSON Visualization System for Jupyter Notebooks**
 
 ```ascii
