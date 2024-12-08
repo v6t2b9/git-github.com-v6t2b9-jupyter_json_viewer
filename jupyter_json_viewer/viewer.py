@@ -33,15 +33,6 @@ def get_marker(index: int, length: int) -> str:
 def format_value(v: Any, depth: int = 0, path: str = '', max_depth: Optional[int] = None) -> str:
     """
     Formats a value into HTML with proper styling and structure.
-    
-    Args:
-        v: The value to format
-        depth: Current nesting depth
-        path: Current path in the JSON structure
-        max_depth: Maximum nesting depth before truncating
-        
-    Returns:
-        Formatted HTML string
     """
     if max_depth is not None and depth >= max_depth:
         return '<span class="json-string">"..."</span>'
@@ -65,7 +56,8 @@ def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str
         return '<span class="json-bracket">{}</span>'
 
     result = [
-        '<div class="collapsible" onclick="toggleCollapse(this)">▼</div>',
+        '<div class="json-collapsible-container">',
+        '<span class="collapsible">▼</span>',
         '<div class="content"><div class="json-container">'
     ]
 
@@ -83,7 +75,7 @@ def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str
             f'{"," if i < len(items) - 1 else ""}</div>'
         )
 
-    result.append('</div></div>')
+    result.append('</div></div></div>')
     return '\n'.join(result)
 
 def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> str:
@@ -92,7 +84,8 @@ def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> s
         return '<span class="json-bracket">[]</span>'
 
     result = [
-        '<div class="collapsible" onclick="toggleCollapse(this)">▼</div>',
+        '<div class="json-collapsible-container">',
+        '<span class="collapsible">▼</span>',
         '<div class="content"><div class="json-container">'
     ]
 
@@ -107,14 +100,13 @@ def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> s
             f'{"," if i < len(lst) - 1 else ""}</div>'
         )
 
-    result.append('</div></div>')
+    result.append('</div></div></div>')
     return '\n'.join(result)
 
 def generate_css(theme_id: str) -> str:
     """Generates CSS styles for the JSON viewer with scoped variables."""
     return f"""
     <style id="json-viewer-styles-{theme_id}">
-    /* Basis-Styles für den Container */
     #json-viewer-{theme_id} {{
         font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
         font-size: 10px;
@@ -126,7 +118,6 @@ def generate_css(theme_id: str) -> str:
         box-shadow: 0 2px 8px var(--theme-{theme_id}-shadow);
     }}
     
-    /* Titel-Styles */
     #json-viewer-{theme_id} .json-title {{
         font-size: 12px;
         font-weight: bold;
@@ -136,7 +127,6 @@ def generate_css(theme_id: str) -> str:
         padding-bottom: 8px;
     }}
     
-    /* Syntax-Highlighting */
     #json-viewer-{theme_id} .json-string {{ color: var(--theme-{theme_id}-string); word-break: break-word; }}
     #json-viewer-{theme_id} .json-number {{ color: var(--theme-{theme_id}-number); }}
     #json-viewer-{theme_id} .json-boolean {{ color: var(--theme-{theme_id}-boolean); }}
@@ -147,11 +137,15 @@ def generate_css(theme_id: str) -> str:
         margin-right: 8px;
     }}
     
-    /* Container und Layout */
     #json-viewer-{theme_id} .json-bracket {{ color: var(--theme-{theme_id}-text); opacity: 0.7; }}
     #json-viewer-{theme_id} .json-container {{ position: relative; padding-left: 24px; }}
     
-    /* Collapse/Expand Button */
+    #json-viewer-{theme_id} .json-collapsible-container {{
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }}
+
     #json-viewer-{theme_id} .collapsible {{
         cursor: pointer;
         padding: 2px 8px;
@@ -168,9 +162,8 @@ def generate_css(theme_id: str) -> str:
         border-color: var(--theme-{theme_id}-collapsible-border);
     }}
     
-    /* Content und Property Styles */
     #json-viewer-{theme_id} .content {{ display: block; position: relative; }}
-    #json-viewer-{theme_id} .collapsed {{ display: none; }}
+    #json-viewer-{theme_id} .collapsed {{ display: none !important; }}
     
     #json-viewer-{theme_id} .property {{
         display: flex;
@@ -183,7 +176,6 @@ def generate_css(theme_id: str) -> str:
         background-color: var(--theme-{theme_id}-property-hover);
     }}
     
-    /* Zusätzliche Elemente */
     #json-viewer-{theme_id} .key-value-separator {{
         margin: 0 8px;
         color: var(--theme-{theme_id}-null);
@@ -214,7 +206,6 @@ def display_json(
         light_theme = json.dumps(get_theme_colors(False))
         dark_theme = json.dumps(get_theme_colors(True))
         
-        # Updated JavaScript implementation that combines both collapse and theme functionality
         script = f"""
         <script>
         (function() {{
@@ -222,7 +213,6 @@ def display_json(
             const lightTheme = {light_theme};
             const darkTheme = {dark_theme};
             
-            // Theme handling function
             function setThemeColors(isDark) {{
                 const theme = isDark ? darkTheme : lightTheme;
                 const root = document.querySelector(`#json-viewer-${{viewerId}}`);
@@ -233,87 +223,47 @@ def display_json(
                 }});
             }}
             
-            // Set initial theme
-            setThemeColors({str(dark_mode).lower()});
-            
-            // Global collapse function for this instance
-            window[`toggleCollapse_${{viewerId}}`] = function(element) {{
-                const content = element.nextElementSibling;
-                if (content.style.display === "none") {{
-                    content.style.display = "block";
-                    element.textContent = "▼";
-                }} else {{
-                    content.style.display = "none";
-                    element.textContent = "▶";
-                }}
-            }};
-            
-            // Initialize collapse states
-            function initializeCollapse() {{
-                const viewer = document.getElementById(`json-viewer-${{viewerId}}`);
-                if (!viewer) return;
+            function setupCollapsible(viewerElement) {{
+                const collapsibles = viewerElement.querySelectorAll('.collapsible');
+                collapsibles.forEach(button => {{
+                    button.addEventListener('click', function(e) {{
+                        e.stopPropagation();
+                        const content = this.nextElementSibling;
+                        const isCollapsed = content.classList.contains('collapsed');
+                        
+                        if (isCollapsed) {{
+                            content.classList.remove('collapsed');
+                            this.textContent = '▼';
+                        }} else {{
+                            content.classList.add('collapsed');
+                            this.textContent = '▶';
+                        }}
+                    }});
+                }});
                 
                 if ({str(collapsed).lower()}) {{
-                    const contents = viewer.querySelectorAll('.content');
-                    const toggles = viewer.querySelectorAll('.collapsible');
-                    contents.forEach(content => content.style.display = "none");
-                    toggles.forEach(toggle => toggle.textContent = "▶");
+                    collapsibles.forEach(button => {{
+                        const content = button.nextElementSibling;
+                        content.classList.add('collapsed');
+                        button.textContent = '▶';
+                    }});
                 }}
             }}
             
-            // Execute initialization immediately
-            initializeCollapse();
+            // Initialize
+            setThemeColors({str(dark_mode).lower()});
+            
+            // Setup after a short delay to ensure DOM is ready
+            setTimeout(() => {{
+                const viewer = document.getElementById(`json-viewer-${{viewerId}}`);
+                if (viewer) {{
+                    setupCollapsible(viewer);
+                }}
+            }}, 100);
         }})();
         </script>
         """
         
-        def format_dict(d: dict, depth: int, path: str, max_depth: Optional[int]) -> str:
-            if not d:
-                return '<span class="json-bracket">{}</span>'
-
-            result = [
-                f'<div class="collapsible" onclick="toggleCollapse_{viewer_id}(this)" style="display: inline-block;">▼</div>',
-                '<div class="content" style="display: block;"><div class="json-container">'
-            ]
-            
-            items = list(d.items())
-            for i, (k, v) in enumerate(items):
-                marker = get_marker(i, len(items))
-                current_path = f"{path}.{k}" if path else k
-                result.append(
-                    f'<div class="property">'
-                    f'<span class="depth-marker">{marker}</span>'
-                    f'<span class="json-key">"{k}"</span>'
-                    f'<span class="key-value-separator">:</span>'
-                    f'{format_value(v, depth + 1, current_path, max_depth)}'
-                    f'{"," if i < len(items) - 1 else ""}</div>'
-                )
-
-            result.append('</div></div>')
-            return '\n'.join(result)
-
-        def format_list(lst: list, depth: int, path: str, max_depth: Optional[int]) -> str:
-            if not lst:
-                return '<span class="json-bracket">[]</span>'
-
-            result = [
-                f'<div class="collapsible" onclick="toggleCollapse_{viewer_id}(this)" style="display: inline-block;">▼</div>',
-                '<div class="content" style="display: block;"><div class="json-container">'
-            ]
-
-            for i, item in enumerate(lst):
-                marker = get_marker(i, len(lst))
-                current_path = f"{path}[{i}]"
-                result.append(
-                    f'<div class="property">'
-                    f'<span class="depth-marker">{marker}</span>'
-                    f'{format_value(item, depth + 1, current_path, max_depth)}'
-                    f'{"," if i < len(lst) - 1 else ""}</div>'
-                )
-
-            result.append('</div></div>')
-            return '\n'.join(result)
-
         # Combine all components
         html_content = [generate_css(viewer_id)]
         html_content.append(f'<div id="json-viewer-{viewer_id}">')
