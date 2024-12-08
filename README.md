@@ -1,9 +1,9 @@
-# Jupyter JSON Viewer v1.4
+# Jupyter JSON Viewer v1.5
 **An Interactive JSON Visualization System for Jupyter Notebooks**
 
 ```ascii
 ╔══════════════════════════════════════════════════════════════╗
-║ JUPYTER JSON VIEWER v1.0                                     ║
+║ JUPYTER JSON VIEWER v1.5                                     ║
 ║ >_INTERACTIVE JSON VISUALIZATION SYSTEM                      ║
 ║ >>DOCUMENTATION INITIALIZED                                  ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -170,7 +170,7 @@ pytest
 ## Support
 
 For questions and support:
-1. Check the [issues page](https://github.com/yourusername/jupyter-json-viewer/issues)
+1. Check the [issues page](https://github.com/v6t2b9/jupyter-json-viewer/issues)
 2. Review existing questions
 3. Create a new issue if needed
 

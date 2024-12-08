@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jupyter-json-viewer"
-version = "0.1.4"
+version = "0.1.5"
 description = "An interactive JSON viewer for Jupyter Notebooks"
 readme = "README.md"
 license = { text = "GNU General Public License v3.0" }
